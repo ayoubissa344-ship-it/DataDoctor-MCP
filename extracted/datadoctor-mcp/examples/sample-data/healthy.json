@@ -1,5 +1,0 @@
-{
-  "project": "DataDoctor demo",
-  "status": "healthy",
-  "checks": ["json", "sha256", "read-only"]
-}
