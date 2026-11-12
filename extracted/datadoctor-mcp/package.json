@@ -1,0 +1,68 @@
+{
+  "name": "datadoctor-mcp",
+  "version": "0.2.0",
+  "private": false,
+  "description": "Local-first MCP server for evidence-backed file integrity audits, dataset profiling, diagnostics, and controlled normalization.",
+  "type": "module",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/index.js",
+    "dev": "tsx src/index.ts",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "npm run build && node --test tests/server.test.mjs",
+    "test:python": "node scripts/test-python.mjs",
+    "test:all": "npm run test:python && npm test",
+    "clean": "node -e \"import('node:fs').then(f=>f.rmSync('dist',{recursive:true,force:true}))\"",
+    "prepublishOnly": "npm run test:all"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "claude",
+    "data-integrity",
+    "file-integrity",
+    "data-quality",
+    "dataset-profiling",
+    "digital-forensics",
+    "safe-repair",
+    "audit",
+    "python",
+    "typescript"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ayoubissa344-ship-it/datadoctor-mcp.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ayoubissa344-ship-it/datadoctor-mcp/issues"
+  },
+  "homepage": "https://github.com/ayoubissa344-ship-it/datadoctor-mcp#readme",
+  "dependencies": {
+    "@modelcontextprotocol/server": "2.4.0",
+    "zod": "^4.2.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.19.0",
+    "tsx": "^4.20.6",
+    "typescript": "^6.0.0"
+  },
+  "bin": {
+    "datadoctor-mcp": "./dist/index.js"
+  },
+  "files": [
+    "dist",
+    "python",
+    "README.md",
+    "README.ar.md",
+    "LICENSE",
+    "NOTICE.md",
+    "AUTHORS.md",
+    "SECURITY.md",
+    "docs"
+  ],
+  "author": "Ayoub Issa"
+}
