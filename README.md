@@ -1,229 +1,392 @@
-DataDoctor MCP Evidence before edits. Verification after every write. 
+<div align="center">
 
-A local-first data integrity and diagnostics toolkit for Claude, powered by the Model Context Protocol.
+<img src="datadoctor-logo.svg" alt="DataDoctor" width="420">
 
-Inspect, validate, profile, compare, diagnose, and normalize supported data through ten focused tools backed by deterministic local processing.
+# DataDoctor MCP
 
-Created and maintained by Ayoub Issa.
+### Evidence before edits. Verification after every write.
 
-Features · MCP Tools · Installation · Claude Setup · Safety · Architecture · Roadmap
+**A local-first data integrity and diagnostics toolkit for Claude, powered by the Model Context Protocol.**
 
-Overview 
+Inspect files, validate supported formats, profile datasets, compare versions, identify duplicates, diagnose structural issues, and normalize supported data with explicit safeguards.
 
-DataDoctor MCP brings data inspection, structural validation, integrity analysis, dataset profiling, and controlled normalization into one interface for AI-assisted workflows.
+[![CI](https://github.com/ayoubissa344-ship-it/datadoctor-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/ayoubissa344-ship-it/datadoctor-mcp/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Node.js](https://img.shields.io/badge/Node.js-%3E%3D20-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
+[![Python](https://img.shields.io/badge/Python-%3E%3D3.10-3776AB?logo=python&logoColor=white)](https://www.python.org/)
+[![MCP](https://img.shields.io/badge/Protocol-MCP-6f42c1)](https://modelcontextprotocol.io/)
 
-Powered by a TypeScript MCP server and a deterministic Python analysis engine, it gives Claude access to ten specialized tools for working with local files and datasets.
+**Created and maintained by [Ayoub Issa](https://github.com/ayoubissa344-ship-it).**
 
-Whether auditing a project directory, checking research data, comparing file versions, or preparing a controlled normalization, DataDoctor provides structured results that help make each operation traceable and verifiable.
+[Features](#what-datadoctor-does) | [Tools](#mcp-tools) | [Install](#installation) | [Claude setup](#connect-to-claude-desktop) | [Safety model](#safety-and-integrity-model) | [Architecture](docs/ARCHITECTURE.md) | [Roadmap](#roadmap)
 
-Its design follows three principles:
+</div>
 
-Evidence before decisions: inspections return structured findings and validation results. Controlled modifications: write operations require explicit authorization and source verification. Verification after changes: successful normalization includes a post-write validation. 
+---
 
-DataDoctor distinguishes structural validity, data integrity, and semantic correctness rather than treating them as interchangeable.
+## What DataDoctor is
 
-Features Capability Description Directory auditing Recursive, bounded inspection with file statuses, hashes, and scan coverage Format validation Structural checks for JSON, CSV, XML, ZIP, SQLite, and selected UTF-8 text Dataset profiling CSV dimensions, missing values, inferred types, distinct-count estimates, and numeric ranges Duplicate detection Identify byte-identical files using SHA-256 Version comparison Compare file sizes, hashes, and supported text differences Error diagnosis Produce structured findings and evidence-based next steps Data normalization Normalize supported JSON and CSV files with explicit authorization Integrity verification Calculate SHA-256 and compare against a trusted expected digest Audit reporting Generate structured reports containing validation and coverage information AI-assisted workflows Expose specialized tools and prompts through MCP Supported formats Format Validation JSON Strict parsing CSV Strict parsing and consistent non-empty row widths XML Well-formedness and DTD/entity declaration restrictions ZIP Archive parsing and CRC verification SQLite Read-only PRAGMA quick_check UTF-8 text Character encoding validation Unknown/binary Metadata and SHA-256 inspection 
+DataDoctor MCP gives Claude a carefully scoped set of local tools for inspecting files, validating supported formats, profiling CSV datasets, finding byte-identical duplicates, comparing versions, diagnosing structural problems, and performing explicitly authorized normalizations.
 
-Structural validation does not certify business correctness, authenticity, or malware-free status.
+It brings these capabilities together in one MCP interface, backed by a TypeScript server and a deterministic Python analysis engine. The result is a practical toolkit for data inspection and integrity workflows that can be integrated into AI-assisted development, research, and analysis.
 
-MCP Tools 
+DataDoctor is designed around one operational rule:
 
-DataDoctor exposes ten specialized tools through the Model Context Protocol.
+> **A diagnosis must show its evidence. A write must have a precondition and backup. A successful repair must pass a post-write check.**
 
-Tool Capability Operation scan_data Directory auditing Read inspect_file File inspection and SHA-256 Read detect_corruption Structural validation Read find_duplicates Duplicate discovery Read profile_dataset CSV profiling Read compare_versions File comparison Read diagnose_errors Evidence-based diagnosis Read verify_integrity Integrity verification Read generate_report Structured audit reporting Read repair_data Controlled JSON/CSV normalization Write Tool capabilities 
+A file being readable is not proof that it is structurally valid. A parser accepting a file is not proof that its business meaning is correct. A newly computed hash is not proof of authenticity. DataDoctor keeps those distinctions visible in tool results so Claude can explain what was checked, what was not checked, and how complete the scan was.
 
-scan_data
+## What DataDoctor does
 
-Performs recursive directory auditing and reports file-level validation states, SHA-256 digests, skipped entries, errors, and scan coverage.
+DataDoctor combines file-level inspection, dataset analysis, integrity checks, and controlled normalization in a single local-first workflow.
 
-inspect_file and detect_corruption
+| Capability | What it provides |
+|---|---|
+| Bounded directory audit | Recursive scan with per-file status, SHA-256, explicit skips, errors, and truncation reasons |
+| Format-aware checks | Structural checks for JSON, CSV, XML, ZIP, SQLite, and selected UTF-8 text files |
+| Dataset profiling | CSV row/column counts, null counts, inferred types, bounded distinct-count estimates, and numeric ranges |
+| Duplicate discovery | Groups byte-identical files by SHA-256; never deletes them |
+| Version comparison | Hash/size comparison and a bounded text diff for small UTF-8 files |
+| Diagnosis | Structured explanation of observed validation failures and cautious next steps |
+| Controlled normalization | Reformat already-valid JSON or structurally consistent CSV after explicit authorization |
+| Integrity verification | Compare current bytes against a caller-supplied trusted digest when available |
+| Evidence report | Machine-readable report returned to Claude, including coverage limitations |
 
-Inspect individual files, identify supported formats, calculate hashes, and execute the corresponding structural validators.
+## Why it is useful with AI assistants
 
-profile_dataset
+AI assistants can reason over file contents, but reasoning alone cannot establish whether a directory was completely scanned, whether a file changed during inspection, whether a proposed write still targets the bytes that were reviewed, or whether a replacement passed validation afterward.
 
-Analyzes CSV datasets and returns row and column counts, null distributions, inferred types, distinct-count estimates, and numeric ranges without returning raw dataset rows.
+DataDoctor supplies those operations as deterministic local tools. Claude can coordinate them and explain the results using structured evidence, without treating an unchecked file as healthy or presenting a guessed repair as data recovery.
 
-find_duplicates
+### Intended users
 
-Groups byte-identical files using SHA-256. Results include scan coverage. Files are identified, not deleted or modified.
+- **Developers:** inspect project data, configuration artifacts, logs, archives, and SQLite files.
+- **Researchers:** check datasets before analysis and record file digests and validation coverage.
+- **Data analysts:** profile CSV structure, missingness, type distributions, and numeric ranges.
+- **Students and educators:** diagnose malformed structured files without manually writing one-off scripts.
+- **Small teams:** produce repeatable local audit results before moving or processing files.
 
-compare_versions
+## MCP tools
 
-Compares two files using size and SHA-256, with optional unified text diffs for supported small UTF-8 files.
+DataDoctor exposes ten tools through the Model Context Protocol. Together, they cover the main workflow from initial inspection through validation, analysis, reporting, and controlled normalization.
 
-diagnose_errors
+| Tool | Purpose | Writes files? |
+|---|---|---:|
+| `scan_data` | Bounded recursive scan of an allowed directory | No |
+| `inspect_file` | Inspect one file and calculate SHA-256 | No |
+| `detect_corruption` | Run the available structural validator | No |
+| `find_duplicates` | Find byte-identical files by digest | No |
+| `profile_dataset` | Profile one CSV without returning raw rows | No |
+| `compare_versions` | Compare hashes, sizes, and optionally small text diffs | No |
+| `diagnose_errors` | Combine inspection with an evidence-led diagnosis | No |
+| `verify_integrity` | Validate and optionally compare a trusted expected SHA-256 | No |
+| `generate_report` | Return a structured directory audit report | No |
+| `repair_data` | Normalize already-valid JSON or consistent CSV | **Yes** |
 
-Combines validation findings with structured explanations and recommended next steps.
+### `scan_data`
 
-verify_integrity
+Scans recursively within a configured root and returns a status for each recorded file. The summary separates `valid`, `invalid`, `unchecked`, `skipped`, and `errors`. If a file-count, depth, or aggregate byte budget is reached, the result includes `truncated: true` and a list of `truncation_reasons`.
 
-Calculates SHA-256 and optionally compares the result against a caller-supplied trusted digest.
+Defaults: 1,000 files, depth 8, maximum 25 MiB per file, and 512 MiB of aggregate bytes hashed. The hard aggregate scan cap is 2 GiB. Hidden entries and symlinks are skipped. A truncated scan must never be described as a complete clean bill of health.
 
-generate_report
+### `inspect_file` and `detect_corruption`
 
-Produces a machine-readable datadoctor-scan-report containing timestamps, file hashes, validation states, coverage, skipped entries, errors, and truncation information.
+`inspect_file` returns the canonical path, file name, extension, size, modification timestamp, SHA-256, detected format, and validator result. `detect_corruption` returns the format-specific validator result without modifying the file.
 
-repair_data
+Supported checks:
 
-Provides two controlled normalization strategies:
+| Format | Check | What a pass means |
+|---|---|---|
+| JSON | Strict JSON parsing; rejects non-standard `NaN`/`Infinity` constants | The document parses as JSON |
+| CSV | Strict CSV parsing and consistent non-empty row widths | Rows have a consistent structural width |
+| XML | Well-formedness parsing; DTD/entity declarations are rejected | The XML parser accepted the document under this policy |
+| ZIP | Archive parsing and CRC scan under entry/uncompressed-size limits | Checked archive members passed CRC verification |
+| SQLite | Read-only `PRAGMA quick_check` | SQLite quick-check returned `ok` |
+| Selected text | UTF-8 decoding | The bytes decode as UTF-8 |
+| Unknown/binary | Metadata and SHA-256 only | No structural validation was performed |
 
-Strategy Operation json_format Formats already-valid JSON using stable UTF-8 output, two-space indentation, and a final newline csv_normalize Normalizes quoting and line endings in structurally consistent CSV files 
+A skipped or unknown validator returns `valid: null`/`checked: false`, not `valid: true`. Structural validation is not semantic validation, malware detection, authenticity verification, or proof that a dataset meets a research or business specification.
 
-Both strategies require explicit confirmation, an expected SHA-256 from a preceding inspection, a retained backup, and post-write validation.
+### `profile_dataset`
 
-These operations normalize supported data; they do not reconstruct corrupted content or recover missing information.
+Profiles CSV files up to the per-file read limit. It returns row and column counts, null/non-null counts, heuristic type distributions, a bounded distinct-count lower bound, numeric minimum/maximum values, duplicate header names, and whether the row limit truncated the profile.
 
-MCP Prompts 
+Raw rows and distinct sample values are not returned. Column names, aggregate counts/type distributions, and numeric bounds are disclosed; column names may themselves contain sensitive information. The output is a statistical profile, not a declared schema or a business-rule certification.
 
-DataDoctor also provides three prompts for structured AI-assisted workflows:
+Defaults: 100,000 data rows; maximum 1,000,000 rows and 500 columns. Distinct-value tracking is capped at 10,000 unique strings per column and 100,000 tracked values across the profile. The profile is labelled `partial` when the row cap stops processing before end-of-file.
 
-audit-data-directory — guides Claude through a read-only directory audit. explain-file-integrity — explains validation evidence and integrity findings. prepare-safe-repair — prepares a repair plan requiring separate user approval before modification. 
+### `find_duplicates`
 
-Prompts guide the assistant. Actual file access and write safeguards are independently enforced by the analysis engine.
+Groups files with matching SHA-256 digests. A matching digest is used as a practical byte-identity signal. The result includes scan coverage, so a partial scan is visible. DataDoctor does not delete, move, or merge duplicates, and a byte-identical file is not automatically safe to remove.
 
-Why DataDoctor? 
+### `compare_versions`
 
-AI assistants can analyze information, but reliable data operations also require deterministic inspection, reproducible checks, explicit authorization, and verification.
+Compares two allowed files by size and SHA-256; each input is subject to the 25 MiB per-file operation limit. A unified text diff is generated only when both files are at most 1 MiB, decode as UTF-8, and fit within the combined line limit. The diff is capped at 20,000 characters. Because diffs can contain snippets of file content, only compare files you are comfortable including in the Claude conversation.
 
-DataDoctor provides these operations through a dedicated local MCP interface.
+### `diagnose_errors`
 
-Its intended applications include:
+Returns validator output together with a structured status and a recommended next step. It separates structural observations from semantic conclusions and does not invent a way to reconstruct missing content.
 
-Software development: inspect project files, configurations, archives, and databases. Scientific research: evaluate dataset structure and record integrity evidence. Data analysis: understand missingness, inferred types, and numerical distributions. Education: investigate malformed structured data through guided diagnostics. Team workflows: perform repeatable local audits before processing or transferring data. Architecture Claude Desktop / Claude Code | | MCP over stdio v +---------------------------+ | TypeScript MCP Server | | | | Official MCP SDK | | Zod Input Schemas | | Tools and Prompts | | Process and Response Limits +---------------------------+ | | Bounded JSON request v +---------------------------+ | Python Analysis Engine | | | | File Validation | | Hashing and Profiling | | Diagnosis and Reporting | | Controlled Normalization | +---------------------------+ | v Authorized Local Directories 
+### `verify_integrity`
 
-The TypeScript server manages MCP communication, input validation, subprocess execution, timeouts, and response limits.
+Calculates SHA-256 and performs the available format check. To receive `integrity_verified: true`, provide an `expected_sha256` obtained from a trusted source. A hash calculated only from the current file identifies its current bytes; it does not establish provenance or authenticity.
 
-The Python engine performs deterministic file operations using the Python standard library.
+### `repair_data`
 
-Each tool call starts a separate Python worker. Communication uses JSON over stdin and stdout, with stdout reserved for the worker response.
+DataDoctor currently implements two normalization strategies:
 
-DataDoctor uses local stdio communication and does not make network requests during file analysis.
+| Strategy | Preconditions | Operation |
+|---|---|---|
+| `json_format` | The source already parses as strict JSON | Writes stable UTF-8 JSON with two-space indentation and a final newline |
+| `csv_normalize` | The source parses strictly and has consistent non-empty row widths | Rewrites CSV quoting and line endings using the standard CSV writer |
 
-Tool results are returned to the connected AI host and may contain file paths, metadata, hashes, diagnostics, and supported text-diff snippets.
+Every repair requires both `confirm: true` and an exact `expected_sha256` copied from an immediately preceding inspection. The operation aborts if the source digest differs. It creates `<filename>.datadoctor.bak` exclusively and refuses to overwrite an existing backup. The replacement is prepared in a same-directory temporary file, rechecks the source digest before replacement, atomically replaces the file, and validates the result. The backup is retained after success.
 
-See the technical documentation:
+These are normalization operations, not corruption recovery. DataDoctor does **not** reconstruct malformed JSON, fill missing CSV cells, delete duplicates, or repair SQLite pages. Concurrent writers running under the same OS account can still create narrow race conditions; see the [threat model](docs/THREAT_MODEL.md). Keep independent backups for important data.
 
-Architecture Threat Model Product Positioning Requirements Node.js 20+ Python 3.10+ Claude Desktop with local MCP support, or Claude Code. Explicitly authorized local directories. 
+### `generate_report`
 
-The Python engine requires no third-party Python packages.
+Returns a machine-readable `datadoctor-scan-report` to Claude. It includes a generation timestamp, SHA-256 values, format-validation states, skipped/error counts, byte coverage, truncation reasons, and a note explaining the limits of hash-based claims. The report is returned in the MCP response; it is not automatically written to disk.
 
-Installation 
+## MCP prompts
 
-Clone the repository:
+The server also exposes three prompts that guide Claude towards evidence-led workflows:
 
-git clone https://github.com/ayoubissa344-ship-it/datadoctor-mcp.git cd datadoctor-mcp 
+- `audit-data-directory`: read-only folder audit with explicit coverage reporting.
+- `explain-file-integrity`: explain the validator, evidence, limitations, and safe next step.
+- `prepare-safe-repair`: prepare a repair plan and require separate user approval before a write.
 
-Install dependencies and build:
+Prompts guide model behavior; they are not a security boundary. The Python engine independently enforces path checks, repair preconditions, and write safeguards.
 
-npm install npm run build 
+## Architecture
 
-Run the test suite:
+```text
+Claude Desktop / Claude Code
+          |
+          | MCP over stdio
+          v
++--------------------------------------+
+| TypeScript MCP server                |
+| Official MCP SDK / Zod input schemas  |
+| Tool annotations / prompts / limits  |
++--------------------------------------+
+          |
+          | one bounded JSON request; no shell
+          v
++--------------------------------------+
+| Python analysis worker               |
+| Standard-library-only engine         |
+| Validation / hashing / profiling     |
+| Narrow normalization / verification  |
++--------------------------------------+
+          |
+          v
+ Explicitly configured local directories
+```
 
-npm run test:all 
+TypeScript owns MCP transport, argument schemas, process lifecycle, subprocess timeout, and response-size limits. Python owns deterministic file operations using the standard library. The worker is started separately for each tool call and receives one JSON request over stdin; stdout is reserved for one JSON response. No third-party Python packages are required.
 
-Alternatively, download and extract the repository ZIP archive before executing these commands.
+The server is local and uses stdio. It does not make network requests during file analysis. However, tool results are sent to the connected AI host: file paths, names, hashes, diagnostics, metadata, and (for small text comparisons) diff snippets can appear in the model conversation. Review outputs and root permissions accordingly.
 
-Connect to Claude Claude Desktop 
+See [Architecture](docs/ARCHITECTURE.md), [Threat Model](docs/THREAT_MODEL.md), [Product Positioning](docs/PRODUCT_POSITIONING.md), and the [Release Checklist](RELEASE_CHECKLIST.md).
 
-Build the project first, then add a datadoctor server entry to claude_desktop_config.json.
+## Requirements
 
-Configuration locations:
+- Node.js **20 or newer**.
+- Python **3.10 or newer**.
+- Claude Desktop with local MCP support, or Claude Code.
+- One or more directories that you explicitly authorize DataDoctor to inspect.
 
-macOS: ~/Library/Application Support/Claude/claude_desktop_config.json Windows: %APPDATA%\Claude\claude_desktop_config.json Linux: ~/.config/Claude/claude_desktop_config.json 
+The Python engine uses only Python's standard library. No `pip install` is required.
 
-macOS / Linux
+## Installation
 
-{ "mcpServers": { "datadoctor": { "command": "node", "args": [ "/absolute/path/to/datadoctor-mcp/dist/index.js", "--root", "/absolute/path/to/folder-you-want-claude-to-inspect" ] } } } 
+```bash
+git clone https://github.com/ayoubissa344-ship-it/datadoctor-mcp.git
+cd datadoctor-mcp
+npm install
+npm run build
+npm run test:all
+```
 
-Windows
+If you downloaded a ZIP archive, extract it and run the same commands from the extracted project directory.
 
-{ "mcpServers": { "datadoctor": { "command": "node", "args": [ "C:\\absolute\\path\\to\\datadoctor-mcp\\dist\\index.js", "--root", "C:\\Users\\YourUser\\Documents\\DataToInspect" ] } } } 
+## Connect to Claude Desktop
 
-Replace the example paths with actual absolute paths. Multiple authorized roots can be configured by repeating --root and its path.
+Build the project first. Add a `datadoctor` entry to Claude Desktop's `claude_desktop_config.json` and replace the sample paths with absolute paths on your machine.
 
-Restart Claude Desktop after saving the configuration.
+Common configuration locations:
 
-For additional setup instructions, see Anthropic's local MCP server setup guide.
+- **macOS:** `~/Library/Application Support/Claude/claude_desktop_config.json`
+- **Windows:** `%APPDATA%\Claude\claude_desktop_config.json`
+- **Linux:** `~/.config/Claude/claude_desktop_config.json`
 
-Claude Code 
+### macOS / Linux
 
-Register a project-scoped server:
+```json
+{
+  "mcpServers": {
+    "datadoctor": {
+      "command": "node",
+      "args": [
+        "/absolute/path/to/datadoctor-mcp/dist/index.js",
+        "--root",
+        "/absolute/path/to/folder-you-want-claude-to-inspect"
+      ]
+    }
+  }
+}
+```
 
-claude mcp add --transport stdio datadoctor -- node "$PWD/dist/index.js" --root "$HOME/Documents/DataToInspect" 
+### Windows
 
-Verify the configuration:
+```json
+{
+  "mcpServers": {
+    "datadoctor": {
+      "command": "node",
+      "args": [
+        "C:\\absolute\\path\\to\\datadoctor-mcp\\dist\\index.js",
+        "--root",
+        "C:\\Users\\YourUser\\Documents\\DataToInspect"
+      ]
+    }
+  }
+}
+```
 
-claude mcp list Local Execution 
+Use the narrowest directories Claude needs. Multiple roots are supported by repeating `--root` and its path. Restart Claude Desktop after saving the configuration. For exact UI details, consult Anthropic's [local MCP server setup guide](https://support.claude.com/en/articles/10949351-getting-started-with-local-mcp-servers-on-claude-desktop).
 
-Development mode:
+## Connect to Claude Code
 
-npm run dev -- --root ./examples/sample-data 
+From the repository directory, add a project-scoped stdio server:
 
-Compiled execution:
+```bash
+claude mcp add --transport stdio datadoctor -- node "$PWD/dist/index.js" --root "$HOME/Documents/DataToInspect"
+```
 
-node dist/index.js --root ./examples/sample-data Runtime options Option Description --root <directory> Authorized directory; repeatable --python <executable> Python executable --timeout-ms <milliseconds> Worker timeout; 1,000–300,000 ms, default 45,000 --help Display usage information 
+Check `claude mcp list` to confirm it is configured. CLI syntax may differ between Claude Code releases; refer to the installed version's documentation if the command parser changes.
 
-Environment variables:
+## Run and inspect locally
 
-DATADOCTOR_PYTHON selects the Python executable. DATADOCTOR_ROOTS supplies authorized roots, separated by : on POSIX or ; on Windows. Protocol inspection 
+```bash
+npm run dev -- --root ./examples/sample-data
+```
 
-DataDoctor can also be inspected through the MCP Inspector:
+Or run the compiled entry point:
 
-npx @modelcontextprotocol/inspector node dist/index.js --root ./examples/sample-data 
+```bash
+node dist/index.js --root ./examples/sample-data
+```
 
-Standard output is reserved for MCP protocol communication. Server diagnostics are written to standard error.
+The server uses stdio. Standard output is reserved for MCP protocol messages; diagnostics go to standard error. Do not add `console.log` statements to the server transport path.
 
-Safety and Integrity 
+For interactive protocol inspection, use the MCP Inspector:
 
-DataDoctor uses a read-only-by-default model with explicit safeguards for file modifications.
+```bash
+npx @modelcontextprotocol/inspector node dist/index.js --root ./examples/sample-data
+```
 
-Protection Implementation Access control Explicitly configured directory roots Path containment Canonical path checks Symlink handling Symlink paths rejected; hidden entries and symlinks skipped during scans Process execution Python launched without a shell Resource management Bounded scanning, file sizes, ZIP limits, timeouts, and response sizes Default operation Read-only Write authorization Explicit confirmation and expected SHA-256 Backup protection Exclusive creation of a non-overwriting backup Post-write verification Validation after atomic replacement Repair safeguards 
+### Runtime options
 
-Every repair_data operation requires:
+| Option | Meaning |
+|---|---|
+| `--root <directory>` | Grant access to a directory; repeat to add roots. Required unless `DATADOCTOR_ROOTS` is set. |
+| `--python <executable>` | Python executable; defaults to `python3` (POSIX) or `python` (Windows). |
+| `--timeout-ms <milliseconds>` | Python worker timeout from 1,000 to 300,000 ms; default 45,000 ms. |
+| `--help` | Print usage to stderr and exit. |
 
-confirm: true. An exact expected_sha256 obtained from a preceding inspection. A source digest matching the expected value. Successful exclusive creation of <filename>.datadoctor.bak. Preparation of the replacement in a same-directory temporary file. A final source-digest check before replacement. Atomic replacement and post-write validation. 
+Environment alternatives: `DATADOCTOR_PYTHON` selects the Python executable. `DATADOCTOR_ROOTS` supplies roots separated by `:` on POSIX or `;` on Windows. Explicit `--root` arguments are easier to audit and are recommended.
 
-Existing backups are never overwritten, and backups are retained after successful normalization.
+## Safety and integrity model
 
-For important data, maintain independent backups as well. Concurrent processes operating under the same OS identity can still create narrow race conditions; consult the Threat Model before using DataDoctor in sensitive environments.
+DataDoctor combines local execution, scoped access, resource limits, and explicit write authorization to keep file operations controlled.
 
-Testing 
+1. **Least privilege:** the operator explicitly chooses allowed roots.
+2. **Canonical containment:** requested paths must resolve inside one of those roots.
+3. **Symlink policy:** symlink paths are rejected; hidden entries and symlinks are skipped during scanning.
+4. **No shell:** the Node process launches Python with an argument array and JSON stdin.
+5. **Resource limits:** scan count/depth/bytes, per-file size, ZIP limits, worker timeout, and response size are bounded.
+6. **Read-only default:** only `repair_data` writes.
+7. **Write preconditions:** repair requires explicit confirmation and the expected source digest.
+8. **Backup and post-check:** a non-overwriting backup is retained; the replacement is validated before success is returned.
+9. **Honest scope:** structural checks, hashes, and heuristics are labelled as such. They do not prove business correctness, authenticity, or malware-free status.
 
-Run individual or combined test suites:
+No portable application-level path check can eliminate every race with another process running under the same OS identity. Do not allow concurrent applications to write a file while DataDoctor is repairing it. Use OS-level sandboxing and independent backups for high-value data.
 
-npm run test:python npm test npm run test:all Python unit tests use the standard library. npm test compiles TypeScript and runs an MCP stdio integration test. The integration test checks initialization, tool discovery, prompt discovery, and file inspection. CI executes the configured Node.js and Python version matrix. Project Structure datadoctor-mcp/ ├── src/ # TypeScript MCP server and prompts ├── python/datadoctor/ # Python analysis engine ├── tests/ # Unit and integration tests ├── scripts/ # Test helpers ├── docs/ # Technical and product documentation ├── examples/sample-data/ # Synthetic test data ├── .github/ # CI, issue templates, Dependabot ├── README.md ├── README.ar.md ├── AUTHORS.md ├── NOTICE.md ├── LICENSE ├── SECURITY.md ├── CONTRIBUTING.md └── RELEASE_CHECKLIST.md Roadmap Implemented [x] Official TypeScript MCP server. [x] Python standard-library analysis engine. [x] Root-scoped directory access. [x] Bounded recursive scanning. [x] JSON, CSV, XML, ZIP, SQLite, and UTF-8 validation. [x] SHA-256 inspection and integrity comparison. [x] Duplicate discovery and version comparison. [x] CSV dataset profiling. [x] Structured diagnosis and audit reporting. [x] Guarded JSON and CSV normalization. [x] Retained backups and post-write validation. [x] Claude-oriented MCP prompts. Planned [ ] Optional JSON Schema and CSV schema validation. [ ] Additional format validators. [ ] JSONL and Parquet dataset profiling. [ ] Optional signed manifests and reproducible release artifacts. [ ] Claude Desktop Extension (.mcpb) packaging after dependency bundling and host validation. 
+## Testing
 
-Planned items are not part of the current implementation.
+```bash
+npm run test:python
+npm test
+npm run test:all
+```
 
-Product Positioning 
+- Python unit tests run with the standard library only.
+- `npm test` compiles TypeScript and runs a stdio MCP integration test against the built server. It verifies initialization, tool discovery, prompt discovery, and a file inspection call.
+- CI runs the Node and Python version matrix defined in `.github/workflows/ci.yml`.
 
-DataDoctor focuses on combining local file inspection, data integrity checks, structured diagnostics, and guarded normalization in an AI-accessible workflow.
+## Project structure
 
-Its product positioning and comparisons with related tools are documented separately.
+```text
+datadoctor-mcp/
+|-- src/                       # TypeScript MCP server and prompts
+|-- python/datadoctor/         # Python analysis engine
+|-- tests/                     # Python unit + MCP stdio integration tests
+|-- scripts/                   # Cross-platform test helpers
+|-- docs/                      # Architecture, threat model, product positioning
+|-- examples/sample-data/      # Synthetic examples
+|-- .github/                   # CI, issue templates, Dependabot
+|-- README.md
+|-- README.ar.md
+|-- AUTHORS.md
+|-- NOTICE.md
+|-- LICENSE
+|-- SECURITY.md
+`-- CONTRIBUTING.md
+```
 
-See Product Positioning and Landscape.
+## Roadmap
 
-Authorship and License 
+- [x] TypeScript MCP server using the official SDK.
+- [x] Python standard-library analysis engine.
+- [x] Root-scoped path access and bounded directory traversal.
+- [x] JSON, CSV, XML, ZIP, SQLite, and selected UTF-8 checks.
+- [x] SHA-256 inspection, duplicate grouping, and version comparison.
+- [x] CSV dataset profiling with aggregate-only output.
+- [x] Structured diagnosis and machine-readable audit reports.
+- [x] Explicit, hash-preconditioned JSON/CSV normalization with backup and post-check.
+- [x] Claude-oriented MCP prompts.
+- [ ] Optional user-supplied JSON Schema and CSV schema validation.
+- [ ] More format validators behind explicit resource budgets.
+- [ ] JSONL and Parquet dataset profiling.
+- [ ] Optional signed manifests and reproducible release artifacts.
+- [ ] Claude Desktop Extension (`.mcpb`) packaging after dependency bundling and host validation.
 
-DataDoctor MCP was originated and initially designed and implemented by Ayoub Issa.
+Roadmap items are proposals, not features in the current release.
 
-Project attribution and copyright scope are documented in:
+## Competitive landscape and positioning
 
-AUTHORS.md NOTICE.md 
+DataDoctor is designed for a focused use case: a local-first, AI-oriented evidence workflow that connects scoped file inspection, explicit scan coverage, structural diagnosis, guarded normalization, retained backups, and post-write verification through one MCP interface.
 
-DataDoctor MCP is distributed under the MIT License, permitting use, modification, redistribution, sublicensing, and commercial distribution subject to its license conditions.
+The broader ecosystem includes file-integrity tools, data-quality validators, profilers, and MCP filesystem servers, each covering different parts of this space. DataDoctor's positioning and comparison references are documented separately.
 
-See LICENSE for the complete terms.
+See [Product Positioning and Landscape](docs/PRODUCT_POSITIONING.md) for the comparison and source links.
 
-Contributing 
+## Authorship, project identity, and license
 
-Contributions and independent technical reviews are welcome.
+DataDoctor MCP was originated and initially designed and implemented by **Ayoub Issa**. The copyright notice covers the original project code and documentation authored for this repository. See [AUTHORS.md](AUTHORS.md) and [NOTICE.md](NOTICE.md) for attribution and scope.
 
-Before contributing, consult:
+The project is distributed under the **MIT License**. MIT permits use, modification, redistribution, sublicensing, and sale subject to its notice condition. It does not reserve exclusive control over abstract ideas, general methods, or functionality. See [LICENSE](LICENSE).
 
-CONTRIBUTING.md SECURITY.md 
+## Contributing
 
-DataDoctor MCP
+Contributions and independent review are welcome. Please read [CONTRIBUTING.md](CONTRIBUTING.md) before opening an issue or pull request. Security reports should follow [SECURITY.md](SECURITY.md).
 
-Inspect with evidence. Change with safeguards. Verify the result.
+---
+
+<div align="center">
+
+**DataDoctor MCP - inspect with evidence. Change with safeguards. Verify the result.**
+
+</div>
