@@ -6,7 +6,9 @@
 
 ### Evidence before edits. Verification after every write.
 
-**A local-first data integrity and diagnostics toolkit for Claude, exposed through the Model Context Protocol.**
+**A local-first data integrity and diagnostics toolkit for Claude, powered by the Model Context Protocol.**
+
+Inspect files, validate supported formats, profile datasets, compare versions, identify duplicates, diagnose structural issues, and normalize supported data with explicit safeguards.
 
 [![CI](https://github.com/ayoubissa344-ship-it/datadoctor-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/ayoubissa344-ship-it/datadoctor-mcp/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
@@ -16,7 +18,7 @@
 
 **Created and maintained by [Ayoub Issa](https://github.com/ayoubissa344-ship-it).**
 
-[Features](#what-datadoctor-does) · [Tools](#mcp-tools) · [Install](#installation) · [Claude setup](#connect-to-claude-desktop) · [Safety model](#safety-and-integrity-model) · [Architecture](docs/ARCHITECTURE.md) · [Roadmap](#roadmap)
+[Features](#what-datadoctor-does) 路 [Tools](#mcp-tools) 路 [Install](#installation) 路 [Claude setup](#connect-to-claude-desktop) 路 [Safety model](#safety-and-integrity-model) 路 [Architecture](docs/ARCHITECTURE.md) 路 [Roadmap](#roadmap)
 
 </div>
 
@@ -24,15 +26,19 @@
 
 ## What DataDoctor is
 
-DataDoctor MCP gives Claude a carefully scoped set of local tools for inspecting files, validating supported formats, profiling CSV datasets, finding byte-identical duplicates, comparing versions, diagnosing structural problems, and performing a small number of explicitly authorized normalizations.
+DataDoctor MCP gives Claude a carefully scoped set of local tools for inspecting files, validating supported formats, profiling CSV datasets, finding byte-identical duplicates, comparing versions, diagnosing structural problems, and performing explicitly authorized normalizations.
 
-It is designed around one operational rule:
+It brings these capabilities together in one MCP interface, backed by a TypeScript server and a deterministic Python analysis engine. The result is a practical toolkit for data inspection and integrity workflows that can be integrated into AI-assisted development, research, and analysis.
+
+DataDoctor is designed around one operational rule:
 
 > **A diagnosis must show its evidence. A write must have a precondition and backup. A successful repair must pass a post-write check.**
 
-A file being readable is not proof that it is structurally valid. A parser accepting a file is not proof that its business meaning is correct. A newly computed hash is not proof of authenticity. DataDoctor keeps those distinctions visible in the tool results so Claude can explain what was checked, what was not checked, and how complete the scan was.
+A file being readable is not proof that it is structurally valid. A parser accepting a file is not proof that its business meaning is correct. A newly computed hash is not proof of authenticity. DataDoctor keeps those distinctions visible in tool results so Claude can explain what was checked, what was not checked, and how complete the scan was.
 
 ## What DataDoctor does
+
+DataDoctor combines file-level inspection, dataset analysis, integrity checks, and controlled normalization in a single local-first workflow.
 
 | Capability | What it provides |
 |---|---|
@@ -50,7 +56,7 @@ A file being readable is not proof that it is structurally valid. A parser accep
 
 AI assistants can reason over file contents, but reasoning alone cannot establish whether a directory was completely scanned, whether a file changed during inspection, whether a proposed write still targets the bytes that were reviewed, or whether a replacement passed validation afterward.
 
-DataDoctor supplies those operations as deterministic local tools. Claude can coordinate them and explain the results without pretending that an unchecked file is healthy or that a guessed repair is recovery.
+DataDoctor supplies those operations as deterministic local tools. Claude can coordinate them and explain the results using structured evidence, without treating an unchecked file as healthy or presenting a guessed repair as data recovery.
 
 ### Intended users
 
@@ -62,7 +68,7 @@ DataDoctor supplies those operations as deterministic local tools. Claude can co
 
 ## MCP tools
 
-DataDoctor exposes ten tools. Read-only tools are marked as such in their MCP annotations. `repair_data` is marked as a write/destructive operation.
+DataDoctor exposes ten tools through the Model Context Protocol. Together, they cover the main workflow from initial inspection through validation, analysis, reporting, and controlled normalization.
 
 | Tool | Purpose | Writes files? |
 |---|---|---:|
@@ -127,7 +133,7 @@ Calculates SHA-256 and performs the available format check. To receive `integrit
 
 ### `repair_data`
 
-Only two normalization strategies are implemented:
+DataDoctor currently implements two normalization strategies:
 
 | Strategy | Preconditions | Operation |
 |---|---|---|
@@ -294,6 +300,8 @@ Environment alternatives: `DATADOCTOR_PYTHON` selects the Python executable. `DA
 
 ## Safety and integrity model
 
+DataDoctor combines local execution, scoped access, resource limits, and explicit write authorization to keep file operations controlled.
+
 1. **Least privilege:** the operator explicitly chooses allowed roots.
 2. **Canonical containment:** requested paths must resolve inside one of those roots.
 3. **Symlink policy:** symlink paths are rejected; hidden entries and symlinks are skipped during scanning.
@@ -322,20 +330,20 @@ npm run test:all
 
 ```text
 datadoctor-mcp/
-├── src/                       # TypeScript MCP server and prompts
-├── python/datadoctor/         # Python analysis engine
-├── tests/                     # Python unit + MCP stdio integration tests
-├── scripts/                   # Cross-platform test helpers
-├── docs/                      # Architecture, threat model, product positioning
-├── examples/sample-data/      # Synthetic examples
-├── .github/                   # CI, issue templates, Dependabot
-├── README.md
-├── README.ar.md
-├── AUTHORS.md
-├── NOTICE.md
-├── LICENSE
-├── SECURITY.md
-└── CONTRIBUTING.md
+鈹溾攢鈹� src/                       # TypeScript MCP server and prompts
+鈹溾攢鈹� python/datadoctor/         # Python analysis engine
+鈹溾攢鈹� tests/                     # Python unit + MCP stdio integration tests
+鈹溾攢鈹� scripts/                   # Cross-platform test helpers
+鈹溾攢鈹� docs/                      # Architecture, threat model, product positioning
+鈹溾攢鈹� examples/sample-data/      # Synthetic examples
+鈹溾攢鈹� .github/                   # CI, issue templates, Dependabot
+鈹溾攢鈹� README.md
+鈹溾攢鈹� README.ar.md
+鈹溾攢鈹� AUTHORS.md
+鈹溾攢鈹� NOTICE.md
+鈹溾攢鈹� LICENSE
+鈹溾攢鈹� SECURITY.md
+鈹斺攢鈹� CONTRIBUTING.md
 ```
 
 ## Roadmap
@@ -359,7 +367,9 @@ Roadmap items are proposals, not features in the current release.
 
 ## Competitive landscape and positioning
 
-DataDoctor does not claim to be the first file-integrity tool, data-quality validator, profiler, or MCP filesystem server. Existing projects already cover important parts of this space. The intended niche is the **local-first, AI-oriented evidence workflow** that connects scoped file inspection, explicit scan coverage, structural diagnosis, guarded normalization, retained backups, and post-write verification in one MCP interface.
+DataDoctor is designed for a focused use case: a local-first, AI-oriented evidence workflow that connects scoped file inspection, explicit scan coverage, structural diagnosis, guarded normalization, retained backups, and post-write verification through one MCP interface.
+
+The broader ecosystem includes file-integrity tools, data-quality validators, profilers, and MCP filesystem servers, each covering different parts of this space. DataDoctor's positioning and comparison references are documented separately.
 
 See [Product Positioning and Landscape](docs/PRODUCT_POSITIONING.md) for the comparison and source links.
 
@@ -377,6 +387,6 @@ Contributions and independent review are welcome. Please read [CONTRIBUTING.md](
 
 <div align="center">
 
-**DataDoctor MCP — inspect with evidence. Change with safeguards. Verify the result.**
+**DataDoctor MCP 鈥� inspect with evidence. Change with safeguards. Verify the result.**
 
 </div>
