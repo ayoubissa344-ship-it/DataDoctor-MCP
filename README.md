@@ -18,7 +18,7 @@ Inspect files, validate supported formats, profile datasets, compare versions, i
 
 **Created and maintained by [Ayoub Issa](https://github.com/ayoubissa344-ship-it).**
 
-[Features](#what-datadoctor-does) 路 [Tools](#mcp-tools) 路 [Install](#installation) 路 [Claude setup](#connect-to-claude-desktop) 路 [Safety model](#safety-and-integrity-model) 路 [Architecture](docs/ARCHITECTURE.md) 路 [Roadmap](#roadmap)
+[Features](#what-datadoctor-does)  [Tools](#mcp-tools)  [Install](#installation)  [Claude setup](#connect-to-claude-desktop)  [Safety model](#safety-and-integrity-model)  [Architecture](docs/ARCHITECTURE.md)  [Roadmap](#roadmap)
 
 </div>
 
