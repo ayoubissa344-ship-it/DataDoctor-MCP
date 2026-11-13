@@ -387,6 +387,6 @@ Contributions and independent review are welcome. Please read [CONTRIBUTING.md](
 
 <div align="center">
 
-**DataDoctor MCP 鈥� inspect with evidence. Change with safeguards. Verify the result.**
+**DataDoctor MCP inspect with evidence. Change with safeguards. Verify the result.**
 
 </div>
